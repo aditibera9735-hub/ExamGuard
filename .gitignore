@@ -1,0 +1,27 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environment
+.venv/
+venv/
+
+# Secrets
+.env
+.env.*
+
+# Logs
+logs/*.log
+
+# Generated runtime data
+data/*.jsonl
+data/*.db
+
+# IDE
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

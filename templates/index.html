@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ExamGuard Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 25px;
+            color: #263445;
+        }
+
+        header {
+            background: #173b70;
+            color: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #00000010;
+        }
+
+        .card h3 {
+            color: #64748b;
+            margin-top: 0;
+        }
+
+        .card h2 {
+            color: #173b70;
+        }
+
+        .section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+        }
+
+        button {
+            background: #173b70;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #24569a;
+        }
+
+        #eventList {
+            text-align: left;
+        }
+
+        .event {
+            padding: 13px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .status {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>ExamGuard Dashboard</h1>
+        <p>Smart Examination Monitoring Platform</p>
+        <p>Integrity Analysis & Reporting System</p>
+    </header>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Candidate ID</h3>
+            <h2 id="candidateId">STU101</h2>
+        </div>
+
+        <div class="card">
+            <h3>Session ID</h3>
+            <h2 id="sessionId">SES001</h2>
+        </div>
+
+        <div class="card">
+            <h3>Monitoring Status</h3>
+            <h2 class="status">Active</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Browser Events</h3>
+            <h2 id="eventCount">0</h2>
+        </div>
+
+    </div>
+
+    <div class="section">
+        <h2>Examination Controls</h2>
+
+        <button onclick="document.documentElement.requestFullscreen()">
+            Start Fullscreen Exam
+        </button>
+
+        <button onclick="loadEvents()">
+            Refresh Events
+        </button>
+    </div>
+
+    <div class="section">
+        <h2>Session Timeline</h2>
+        <div id="eventList">
+            <p>No events loaded yet. Click Refresh Events.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    window.EXAMGUARD_CONFIG = {
+        candidateId: "STU101",
+        sessionId: "SES001"
+    };
+
+    async function loadEvents() {
+        const eventList = document.getElementById("eventList");
+
+        try {
+            const response = await fetch("/api/events?session_id=SES001");
+
+            if (!response.ok) {
+                throw new Error("Could not load events");
+            }
+
+            const data = await response.json();
+
+            const events = data.events || [];
+
+            document.getElementById("eventCount").textContent =
+                events.length;
+
+            if (events.length === 0) {
+                eventList.innerHTML = "<p>No events recorded yet.</p>";
+                return;
+            }
+
+            eventList.innerHTML = events.map(event => `
+                <div class="event">
+                    <strong>${event.event_type}</strong>
+                    <p>Severity: ${event.severity}</p>
+                    <p>Time: ${event.timestamp}</p>
+                    <p>Event ID: ${event.event_id}</p>
+                </div>
+            `).join("");
+
+        } catch (error) {
+            eventList.textContent =
+                "Unable to load events. API endpoint may not be available yet.";
+        }
+    }
+</script>
+
+<script src="{{ url_for('static', filename='js/browser_monitor.js') }}"></script>
+
+</body>
+</html>
